@@ -2,6 +2,14 @@
 
 int main(int argc, char **argv)
 {
-    Elf64_Ehdr elf;
+    File    file;
+
+    if (argc == 1)
+    {
+        if (no_args(&file, A_OUT) == -1)
+            return 1;
+    }
+    
+        
     return 0;
 }

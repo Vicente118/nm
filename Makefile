@@ -8,7 +8,7 @@ CFLAGS = -Werror -Wall -Wextra
 
 RM = rm -rf
 
-SRCS = src/nm.c
+SRCS = src/nm.c src/file_handler.c
 OBJS = $(SRCS:.c=.o)
 
 all : $(NAME)

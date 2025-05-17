@@ -8,8 +8,12 @@
 #include "../libft/libft.h"
 
 #define A_OUT       "a.out"
+#define NM_SEM      "nm: "
 #define NM_WARN     "nm: Warning: '"
+#define WR_FORM     ": file format not recognized\n"
 #define IS_DIR      "' is a directory\n"
+#define EXC_ARG     "This implementation of nm only support one file as argument\n"
+#define BAD_ARCH    ": Unsupported ELF file class\n"
 #define O_DIR        00200000
 
 
@@ -26,6 +30,15 @@ typedef struct
 
     struct stat sb;
 
+    int         arch;
+    void        *ehdr;
+    void        *shdr;
+    void        *symtab;
+    void        *strtab;
+
+    size_t      symtab_entries;
+    size_t      strtab_size;
+    
 }   File;
 
 typedef struct 
@@ -52,15 +65,15 @@ typedef struct
 
 
 /// Parsing
-int    no_args(File *file, const char *filename);
+int     argument_checker(int argc, char **argv, File *file);
+int     file_mapping(File *file, const char *filename);
 
 
 
 
 
-
-
-
+/// Cleanup
+void    cleanup_file(File *file);
 
 
 

@@ -38,7 +38,7 @@ typedef struct
 
     size_t      symtab_entries;
     size_t      strtab_size;
-    
+
 }   File;
 
 typedef struct 
@@ -67,6 +67,10 @@ typedef struct
 /// Parsing
 int     argument_checker(int argc, char **argv, File *file);
 int     file_mapping(File *file, const char *filename);
+int     nm_process(File *file);
+void    init_elf_structures(File *file);
+int     init_elf32(File *file);
+int     init_elf64(File *file);
 
 
 

@@ -2,8 +2,9 @@
 
 int nm_process(File *file)
 {
-    if (init_elf_structures(file) < 0)
-        return -1;
+    init_elf_structures(file);
+
+    return 0;
 }
 
 

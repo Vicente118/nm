@@ -60,6 +60,18 @@ int    file_mapping(File *file, const char *filename)
         write(2, NM_SEM, ft_strlen(NM_SEM));
         write(2, filename, ft_strlen(filename));
         write(2, BAD_ARCH, ft_strlen(BAD_ARCH));
+        munmap(file->addr, file->length);
+        close(file->fd);
+        return -1;
+    }
+
+    if (ehdr->e_shoff + ehdr->e_shnum * ehdr->e_shentsize > file->length) 
+    {
+        write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, filename, ft_strlen(filename));
+        write(2, TRUNCATED, ft_strlen(TRUNCATED));
+        munmap(file->addr, file->length);
+        close(file->fd);
         return -1;
     }
 
@@ -67,24 +79,43 @@ int    file_mapping(File *file, const char *filename)
 }
 
 
-int argument_checker(int argc, char **argv, File *file)
+int argument_checker_and_process(int argc, char **argv, File *file)
 {
     if (argc == 1) 
     {
         if (file_mapping(file, A_OUT) == -1)
             return -1;
+
+        nm_process(file, A_OUT);
     }
     
     else if (argc == 2) 
     {
         if (file_mapping(file, argv[1]) == -1)
             return -1;
+
+        nm_process(file, argv[1]);
     }
 
     else 
     {
-        write(2, EXC_ARG, ft_strlen(EXC_ARG));
-        return -1;
+        int i = 0;
+
+        while (i < argc - 1)
+        {
+            if (file_mapping(file, argv[i + 1]) == -1)
+                return -1;
+
+            write(1, argv[i + 1], ft_strlen(argv[i + 1]));
+            write(1, ":\n", 2);
+
+            nm_process(file, argv[i + 1]);
+
+            ft_memset(file, 0, sizeof(File));
+            file->fd = -1;
+            i++;
+        }
+
     }
 
     return 0;

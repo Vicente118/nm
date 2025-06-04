@@ -1,7 +1,8 @@
 #include <stdio.h>
 
+char *global = "Hello";
 int main()
 {
-    printf("Hello World !");
-    return 0;
+	printf("Hello world !");
+	return 0;
 }

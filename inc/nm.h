@@ -12,8 +12,9 @@
 #define NM_WARN     "nm: Warning: '"
 #define WR_FORM     ": file format not recognized\n"
 #define IS_DIR      "' is a directory\n"
-#define EXC_ARG     "This implementation of nm only support one file as argument\n"
 #define BAD_ARCH    ": Unsupported ELF file class\n"
+#define TRUNCATED   ": File truncated or corrupted\n"
+#define NO_SYMB     ": No symbols\n"
 #define O_DIR        00200000
 
 
@@ -65,9 +66,9 @@ typedef struct
 
 
 /// Parsing
-int     argument_checker(int argc, char **argv, File *file);
+int     argument_checker_and_process(int argc, char **argv, File *file);
 int     file_mapping(File *file, const char *filename);
-int     nm_process(File *file);
+int     nm_process(File *file, const char *filename);
 void    init_elf_structures(File *file);
 int     init_elf32(File *file);
 int     init_elf64(File *file);

@@ -12,3 +12,7 @@ Elf Format Toolbox Medium:
 
 Youtube:
 - https://www.youtube.com/watch?v=ddLB8A1ai_M&list=WL&index=1&t=610s
+
+Learning Linux Binary Analysis book:
+- http://www.staroceans.org/e-book/Learning_Linux_Binary_Analysis.pdf
+

@@ -28,7 +28,5 @@ int main(int argc, char **argv)
     if (argument_checker_and_process(argc, argv, &file) == -1)
         return 1;
 
-    cleanup_file(&file);
-
     return 0;
 }

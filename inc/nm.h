@@ -16,6 +16,8 @@
 #define TRUNCATED   ": File truncated or corrupted\n"
 #define NO_SYMB     ": No symbols\n"
 #define O_DIR        00200000
+#define ARCH_32BIT   1
+#define ARCH_64BIT   2
 
 
 typedef unsigned char uchar;

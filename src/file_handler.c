@@ -52,9 +52,9 @@ int    file_mapping(File *file, const char *filename)
     Elf64_Ehdr  *ehdr = (Elf64_Ehdr *)file->addr;
 
     if (ehdr->e_ident[EI_CLASS] == ELFCLASS32)
-        file->arch = 1;
+        file->arch = ARCH_32BIT;
     else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
-        file->arch = 2;
+        file->arch = ARCH_64BIT;
     else
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
@@ -104,18 +104,20 @@ int argument_checker_and_process(int argc, char **argv, File *file)
         while (i < argc - 1)
         {
             if (file_mapping(file, argv[i + 1]) == -1)
-                return -1;
+            {
+                i++;
+                continue;
+            }    
+            if (i < argc && i > 0)
+                write(1, "\n", 1);
 
             write(1, argv[i + 1], ft_strlen(argv[i + 1]));
             write(1, ":\n", 2);
-
             nm_process(file, argv[i + 1]);
 
-            ft_memset(file, 0, sizeof(File));
-            file->fd = -1;
+            cleanup_file(file);
             i++;
         }
-
     }
 
     return 0;
@@ -129,4 +131,7 @@ void    cleanup_file(File *file)
     
     if (file->fd != -1)
         close(file->fd);
+
+    ft_memset(file, 0, sizeof(File));
+    file->fd = -1;
 }

@@ -16,3 +16,9 @@ Youtube:
 Learning Linux Binary Analysis book:
 - http://www.staroceans.org/e-book/Learning_Linux_Binary_Analysis.pdf
 
+Nice manual for ELF structs:
+- https://refspecs.linuxfoundation.org/elf/gabi4+/ch4.intro.html
+
+Wikipedia:
+- https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#ELF_header
+

@@ -2,6 +2,16 @@
 
 int    file_mapping(File *file, const char *filename)
 {
+    /*
+        1. Check if filename is DIR
+        2. Check if open() failed
+        3. Check is fstat failed
+        4. Check if mmap()m failed
+        5. Check the magic bytes
+        6. Check Architecture
+        7.  
+    */
+
     if (open(filename, O_DIR) >= 0)
     {
         write(2, NM_WARN, ft_strlen(NM_WARN));
@@ -29,7 +39,7 @@ int    file_mapping(File *file, const char *filename)
     }
 
     file->addr = mmap(NULL, file->sb.st_size, PROT_READ, MAP_PRIVATE, file->fd, 0);
-
+    
     if (file->addr == MAP_FAILED)
     {
         perror("mmap");
@@ -74,6 +84,8 @@ int    file_mapping(File *file, const char *filename)
         close(file->fd);
         return -1;
     }
+
+    file->filename = filename;
 
     return 0;
 }

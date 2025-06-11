@@ -1,0 +1,162 @@
+Intro to ELF format:
+- https://blog.k3170makan.com/2018/09/introduction-to-elf-format-elf-header.html
+
+Executable and Linking Format (ELF) Specification:
+- https://refspecs.linuxfoundation.org/elf/elf.pdf?ref=bogdandeac.com
+
+Binary Dissection Github:
+- https://github.com/compilepeace/BINARY_DISSECTION_COURSE/tree/master
+
+Elf Format Toolbox Medium:
+- https://medium.com/@4984_30211/elf-format-toolbox-ee110fe987ba
+
+Youtube:
+- https://www.youtube.com/watch?v=ddLB8A1ai_M&list=WL&index=1&t=610s
+
+Learning Linux Binary Analysis book:
+- http://www.staroceans.org/e-book/Learning_Linux_Binary_Analysis.pdf
+
+Nice manual for ELF structs:
+- https://refspecs.linuxfoundation.org/elf/gabi4+/ch4.intro.html
+
+Wikipedia:
+- https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#ELF_header
+
+
+
+
+
+###########################
+
+- The segments contain information that is necessary for runtime execution of the file,
+while sections contain important data for linking and relocation.
+
+- section: tell the linker if a section is either:
+    raw data to be loaded into memory, e.g. .data, .text, etc.
+    or formatted metadata about other sections, that will be used by the linker, but disappear at runtime e.g. .symtab, .srttab, .rela.text
+
+- segment: tells the operating system:
+    where should a segment be loaded into virtual memory
+    what permissions the segments have (read, write, execute). Remember that this can be efficiently enforced by the processor.
+
+
+###########################
+
+- ELF File:
+┌───────────────────────────┐
+│        ELF Header         │ ← Informations générales sur le fichier
+├───────────────────────────┤
+│     Program Headers       │ ← Information pour l'exécution (segments)
+├───────────────────────────┤
+│          .text            │ ← Code exécutable
+├───────────────────────────┤
+│          .data            │ ← Données initialisées
+├───────────────────────────┤
+│          .bss             │ ← Données non initialisées
+├───────────────────────────┤
+│         .symtab           │ ← Table des symboles
+├───────────────────────────┤
+│         .strtab           │ ← Table des chaînes pour symboles
+├───────────────────────────┤
+│        .shstrtab          │ ← Table des chaînes pour noms de sections
+├───────────────────────────┤
+│      Section Headers      │ ← Description des sections
+└───────────────────────────┘
+
+
+- ELF Header: 
+┌────────────────────────────────────────┐
+│ e_ident[EI_NIDENT]                     │ ← Contient le "magic number" et autres infos d'identification
+├────────────────────────────────────────┤
+│ e_type        (Type du fichier)        │ ← Objet, exécutable, bibliothèque partagée, etc.
+├────────────────────────────────────────┤
+│ e_machine     (Architecture cible)     │ ← x86, ARM, MIPS, etc.
+├────────────────────────────────────────┤
+│ e_version     (Version ELF)            │ ← Généralement EV_CURRENT
+├────────────────────────────────────────┤
+│ e_entry       (Point d'entrée)         │ ← Adresse virtuelle de départ d'exécution
+├────────────────────────────────────────┤
+│ e_phoff       (Offset program headers) │ ← Position des program headers dans le fichier
+├────────────────────────────────────────┤
+│ e_shoff       (Offset section headers) │ ← Position des section headers dans le fichier ★
+├────────────────────────────────────────┤
+│ e_flags       (Flags)                  │ ← Dépendant de l'architecture
+├────────────────────────────────────────┤
+│ e_ehsize      (Taille de l'en-tête)    │ ← Taille de cet en-tête
+├────────────────────────────────────────┤
+│ e_phentsize   (Taille d'un PH)         │ ← Taille d'un program header
+├────────────────────────────────────────┤
+│ e_phnum       (Nombre de PH)           │ ← Nombre de program headers
+├────────────────────────────────────────┤
+│ e_shentsize   (Taille d'un SH)         │ ← Taille d'un section header ★
+├────────────────────────────────────────┤
+│ e_shnum       (Nombre de SH)           │ ← Nombre de section headers ★
+├────────────────────────────────────────┤
+│ e_shstrndx    (Index SH pour noms)     │ ← Index vers la section .shstrtab ★
+└────────────────────────────────────────┘
+
+
+- Sections Headers (One section header for each sections):
+┌────────────────────────────────────────┐
+│ sh_name      (Index nom dans .shstrtab)│ ← Pour obtenir le nom de la section ★
+├────────────────────────────────────────┤
+│ sh_type      (Type de section)         │ ← SHT_SYMTAB, SHT_STRTAB, etc. ★
+├────────────────────────────────────────┤
+│ sh_flags     (Attributs)               │ ← Lecture, écriture, exécution...
+├────────────────────────────────────────┤
+│ sh_addr      (Adresse virtuelle)       │ ← Adresse de la section en mémoire
+├────────────────────────────────────────┤
+│ sh_offset    (Offset dans le fichier)  │ ← Position de la section dans le fichier ★
+├────────────────────────────────────────┤
+│ sh_size      (Taille de la section)    │ ← Taille en octets de la section ★
+├────────────────────────────────────────┤
+│ sh_link      (Info lien section)       │ ← Pour .symtab, pointe vers .strtab ★
+├────────────────────────────────────────┤
+│ sh_info      (Information additionelle)│ ← Dépend du type de section
+├────────────────────────────────────────┤
+│ sh_addralign (Alignement)              │ ← Exigence d'alignement
+├────────────────────────────────────────┤
+│ sh_entsize   (Taille d'entrée)         │ ← Pour tables, taille d'une entrée ★
+└────────────────────────────────────────┘
+
+
+- Relation between those structures:
+
+┌───────────────────┐
+│    ELF HEADER     │
+│                   │
+│  e_shoff ─────────┼──────┐
+│  e_shnum = N      │      │
+│  e_shstrndx = K   │      │
+└───────────────────┘      │
+                           ▼
+┌───────────────────┐     ┌───────────────────┐
+│  SECTION HEADERS  │     │ SECTION HEADER[K] │    ┌───────────────────┐
+│  [0..N-1]         │     │ (.shstrtab)       │    │    .SHSTRTAB      │
+│                   │     │                   │    │                   │
+│  sh_name ─────────┼─────┼─sh_offset─────────┼───►│ ".symtab\0"       │
+│                   │     └───────────────────┘    │ ".strtab\0"       │
+└───────────────────┘                              │ ".text\0"         │
+                                                   │ ...               │
+                                                   └───────────────────┘
+  For a section i:
+  if (sh_type == SHT_SYMTAB && nom == ".symtab")
+
+    ┌───────────────────┐
+    │ SECTION HEADER[i] │     ┌───────────────────┐
+    │ (.symtab)         │     │     .SYMTAB       │
+    │                   │     │                   │
+    │  sh_offset ───────┼────►│ Elf_Sym[0]        │
+    │  sh_size          │     │ Elf_Sym[1]        │
+    │  sh_entsize       │     │ ...               │
+    │  sh_link = J      │     └───────────────────┘
+    └───────────────────┘
+               │
+               │            ┌───────────────────┐
+               └───────────►│ SECTION HEADER[J] │     ┌───────────────────┐
+                            │ (.strtab)         │     │     .STRTAB       │
+                            │                   │     │                   │
+                            │  sh_offset ───────┼────►│ "symbol1\0"       │
+                            │  sh_size          │     │ "symbol2\0"       │
+                            └───────────────────┘     │ ...               │
+                                                      └───────────────────┘

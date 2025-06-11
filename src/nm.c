@@ -3,17 +3,7 @@
 int nm_process(File *file, const char *filename)
 {
     init_elf_structures(file);
-
-    // if (!file->symtab || !file->strtab) 
-    // {
-    //     write(2, NM_SEM, ft_strlen(NM_SEM));
-    //     write(2, filename, ft_strlen(filename));
-    //     write(2, NO_SYMB, ft_strlen(NO_SYMB));
-    //     munmap(file->addr, file->length);
-    //     close(file->fd);
-    //     return -1;
-    // }
-
+    symbol_handler(file);
     return 0;
 }
 

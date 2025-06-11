@@ -15,6 +15,8 @@
 #define BAD_ARCH    ": Unsupported ELF file class\n"
 #define TRUNCATED   ": File truncated or corrupted\n"
 #define NO_SYMB     ": No symbols\n"
+#define MALLOC_FAIL "malloc failed\n"
+#define SYMTAB      ".symtab"
 #define O_DIR        00200000
 #define ARCH_32BIT   1
 #define ARCH_64BIT   2
@@ -38,9 +40,10 @@ typedef struct
     void        *shdr;
     void        *symtab;
     void        *strtab;
-
     size_t      symtab_entries;
     size_t      strtab_size;
+
+    const char  *filename;
 
 }   File;
 
@@ -76,6 +79,9 @@ int     init_elf32(File *file);
 int     init_elf64(File *file);
 
 
+/// Symbol 
+void    symbol_handler(File *file);
+char    symbol_associate_letter();
 
 
 

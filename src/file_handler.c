@@ -25,7 +25,9 @@ int    file_mapping(File *file, const char *filename)
     if (file->fd == -1)
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, "'", 2);
         write(2, filename, ft_strlen(filename));
+        write(2, "'", 1);
         write(2, ": ", 2);
         write(2, SUCH_FILE, ft_strlen(SUCH_FILE));
         return -1;
@@ -59,7 +61,7 @@ int    file_mapping(File *file, const char *filename)
         return -1;
     }
 
-    Elf64_Ehdr  *ehdr = (Elf64_Ehdr *)file->addr;
+    Elf32_Ehdr  *ehdr = (Elf32_Ehdr *)file->addr;
 
     if (ehdr->e_ident[EI_CLASS] == ELFCLASS32)
         file->arch = ARCH_32BIT;
@@ -93,46 +95,51 @@ int    file_mapping(File *file, const char *filename)
 
 int argument_checker_and_process(int argc, char **argv, File *file)
 {
+    int result = 0; 
+
     if (argc == 1) 
     {
         if (file_mapping(file, A_OUT) == -1)
             return -1;
-
-        nm_process(file, A_OUT);
+        if (nm_process(file, A_OUT) == -1)
+            result = -1;
+        cleanup_file(file);
     }
-    
     else if (argc == 2) 
     {
         if (file_mapping(file, argv[1]) == -1)
             return -1;
-
-        nm_process(file, argv[1]);
+        if (nm_process(file, argv[1]) == -1)
+            result = -1;
+        cleanup_file(file);
     }
-
     else 
     {
-        int i = 0;
-
-        while (i < argc - 1)
+        int success_count = 0;
+        for (int i = 1; i < argc; i++)
         {
-            if (file_mapping(file, argv[i + 1]) == -1)
-            {
-                i++;
+            if (file_mapping(file, argv[i]) == -1)
                 continue;
-            }    
-            if (i < argc && i > 0)
+                
+            if (success_count > 0)
                 write(1, "\n", 1);
-
-            write(1, argv[i + 1], ft_strlen(argv[i + 1]));
+                
+            write(1, argv[i], ft_strlen(argv[i]));
             write(1, ":\n", 2);
-            nm_process(file, argv[i + 1]);
-
+            
+            if (nm_process(file, argv[i]) == -1)
+                result = -1;
+            else
+                success_count++;
+                
             cleanup_file(file);
-            i++;
         }
+
+        if (success_count == 0)
+            return -1;
     }
 
-    return 0;
+    return result;
 }
 
 

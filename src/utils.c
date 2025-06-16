@@ -1,5 +1,108 @@
 #include "../inc/nm.h"
 
+void sort_symbol(Symbol *symbols, int size, int arch)
+{
+    int i, j;
+    int swapped;
+    
+    for (i = 0; i < size; i++)
+    {
+        if (symbols[i].name)
+        {
+            const char *name = symbols[i].name;
+            while (*name == '_')
+                name++;
+            
+            if (name != symbols[i].name)
+                symbols[i].trim_name = ft_strdup(name);
+            else
+                symbols[i].trim_name = ft_strdup(symbols[i].name);
+        }
+    }
+
+    for (i = 0; i < size - 1; i++)
+    {
+        swapped = 0;
+        
+        for (j = 0; j < size - i - 1; j++)
+        {
+            
+            char *name1 = symbols[j].trim_name;
+            char *name2 = symbols[j + 1].trim_name;
+
+            if (!symbols[j + 1].name)
+            {
+                Symbol tmp     = symbols[j];
+                symbols[j]     = symbols[j + 1];
+                symbols[j + 1] = tmp;
+                swapped        = 1;
+                continue;
+            }
+
+            if (!symbols[j].name)
+                continue;
+
+            int cmp = ft_strcasecmp(name1, name2);
+
+            if (cmp == 0)
+            {
+                int l = 0;
+                int sum_x = 0;
+                int sum_y = 0;
+
+                while (symbols[j].name[l++] == '_')
+                    sum_x++;
+
+                l = 0;
+
+                while (symbols[j + 1].name[l++] == '_')
+                    sum_y++;
+
+                if (sum_x < sum_y)
+                {
+                    Symbol tmp     = symbols[j];
+                    symbols[j]     = symbols[j + 1];
+                    symbols[j + 1] = tmp;
+                    swapped        = 1;
+                    continue;
+                }
+            }
+
+            if (cmp > 0) 
+            {
+                Symbol tmp     = symbols[j];
+                symbols[j]     = symbols[j + 1];
+                symbols[j + 1] = tmp;
+                swapped        = 1;
+            }
+        }
+
+        if (swapped == 0) 
+            break;
+    }
+
+    for (i = 0; i < size; i++)
+    {
+        if (symbols[i].trim_name)
+        {
+            free(symbols[i].trim_name);
+            symbols[i].trim_name = NULL;
+        }
+    }
+}
+
+
+int ft_strcasecmp(const char *s1, const char *s2)
+{
+    while (*s1 && ft_tolower(((unsigned char)*s1)) == ft_tolower(((unsigned char)*s2)))
+    {
+        s1++;
+        s2++;
+    }
+    return (ft_tolower(((unsigned char)*s1)) - ft_tolower(((unsigned char)*s2)));
+}
+
+
 void    free_names(int size, Symbol *symbols)
 {
     for (size_t i = 0; i < size; i++)
@@ -7,4 +110,32 @@ void    free_names(int size, Symbol *symbols)
         if (symbols[i].name)
             free(symbols[i].name);
     }
+}
+
+
+char *ft_itoa_hex(unsigned long n)
+{
+    char            *hex_chars = "0123456789abcdef";
+    unsigned long   temp       = n;
+    int             len        = 1;
+    
+    while (temp > 15)
+    {
+        temp = temp / 16;
+        len++;
+    }
+    
+    char *result = (char *)malloc(sizeof(char) * (len + 1));
+    if (!result)
+        return NULL;
+    
+    result[len] = '\0';
+    
+    while (len > 0)
+    {
+        result[--len] = hex_chars[n % 16];
+        n = n / 16;
+    }
+    
+    return result;
 }

@@ -54,6 +54,13 @@ void    extract_symbol_32(File *file, Elf32_Sym *sym, Symbol *symbol)
 
     char    type    = get_symbol_type(file, sym, ARCH_32BIT);
 
+    if (ft_strncmp(name, "data_start", INT32_MAX) == 0)
+        type = 'W';
+    else if (ft_strnstr(name, "_array_entry", INT32_MAX))
+        type = 'd';
+    else if (ft_strncmp(name, "__abi_tag", INT32_MAX) == 0)
+        type = 'r';
+        
     if (type != '?' && type != 'U' && type != 'w')
     {
         if (ELF32_ST_BIND(sym->st_info) == STB_LOCAL)
@@ -73,6 +80,13 @@ void    extract_symbol_64(File *file, Elf64_Sym *sym, Symbol *symbol)
     symbol->address = sym->st_value;
 
     char    type    = get_symbol_type(file, sym, ARCH_64BIT);
+
+    if (ft_strncmp(name, "data_start", INT32_MAX) == 0)
+        type = 'W';
+    else if (ft_strnstr(name, "_array_entry", INT32_MAX))
+        type = 'd';
+    else if (ft_strncmp(name, "__abi_tag", INT32_MAX) == 0)
+        type = 'r';
 
     if (type != '?' && type != 'U' && type != 'w')
     {
@@ -100,6 +114,15 @@ char    get_symbol_type(File *file, void *sym_ptr, int arch)
         st_shndx = sym->st_shndx;
         sym_type = ELF32_ST_TYPE(sym->st_info);
         sym_bind = ELF32_ST_BIND(sym->st_info);
+
+        /* Weak symbols first*/
+        if (sym_bind == STB_WEAK)
+        {
+            if (st_shndx == SHN_UNDEF)
+                return 'w';  // weak, undefined
+            else
+                return (sym_type == STT_OBJECT) ? 'V' : 'W';  // weak, defined (V pour objets, W pour fonctions)
+        }
 
         /* Special sections */
         switch (st_shndx)
@@ -130,6 +153,15 @@ char    get_symbol_type(File *file, void *sym_ptr, int arch)
         st_shndx = sym->st_shndx;
         sym_type = ELF64_ST_TYPE(sym->st_info);
         sym_bind = ELF64_ST_BIND(sym->st_info);
+        
+        /* Weak symbols first*/
+        if (sym_bind == STB_WEAK)
+        {
+            if (st_shndx == SHN_UNDEF)
+                return 'w';  // weak, undefined
+            else
+                return (sym_type == STT_OBJECT) ? 'V' : 'W';  // weak, defined (V pour objets, W pour fonctions)
+        }
 
         /* Special sections */
         switch (st_shndx)
@@ -151,75 +183,40 @@ char    get_symbol_type(File *file, void *sym_ptr, int arch)
             sh_flags = shdr64->sh_flags;
         }
     }
-
+    // Pour les symboles dans des sections normales
     if (sym_type == STT_GNU_IFUNC)
         type_char = 'i';
     else if (sh_type == SHT_PROGBITS && (sh_flags & SHF_EXECINSTR))
-        type_char = 'T';
+        type_char = 'T';  // Code exécutable
     else if (sh_type == SHT_PROGBITS && (sh_flags & SHF_WRITE))
-        type_char = 'D';
+        type_char = 'D';  // Données initialisées en lecture-écriture
     else if (sh_type == SHT_PROGBITS)
-        type_char = 'R';
+        type_char = 'R';  // Données en lecture seule
     else if (sh_type == SHT_DYNAMIC)
-        type_char = 'D';
-    else if (sh_type == SHT_INIT_ARRAY || sh_type == SHT_FINI_ARRAY)
-        type_char = 'T';
+        type_char = 'D';  // Section dynamique
+    else if (sh_type == SHT_INIT_ARRAY)
+        type_char = 'T';  // Section d'initialisation
+    else if (sh_type == SHT_FINI_ARRAY)
+        type_char = 'T';  // Section de finalisation
     else if (sh_type == SHT_NOBITS && (sh_flags & SHF_ALLOC) && (sh_flags & SHF_WRITE))
-        type_char = 'B';
+        type_char = 'B';  // Données non initialisées (BSS)
+    // Traiter explicitement les sections spécifiques
+    else if (sh_type == SHT_DYNSYM || sh_type == SHT_SYMTAB)
+        type_char = 'r';  // Tables de symboles
+    // Types de symboles spécifiques
     else if (sym_type == STT_FUNC)
-        type_char = 'T';
+        type_char = 'T';  // Fonction
     else if (sym_type == STT_OBJECT)
+        type_char = 'D';  // Objet/variable
+    else if (sym_type == STT_SECTION)
+        type_char = 'S';  // Section
+    else if (sym_type == STT_FILE)
+        type_char = 'f';  // Fichier
+    // Cas par défaut pour les objets dans des sections connues
+    else if (sh_flags & SHF_WRITE)
         type_char = 'D';
+    else if (sh_flags & SHF_ALLOC)
+        type_char = 'r';
     
     return type_char;
 }
-
-void sort_symbol(Symbol *symbols, int size, int arch)
-{
-    int i, j;
-    int swapped;
-    
-    for (i = 0; i < size; i++)
-    {
-        if (symbols[i].name)
-            symbols[i].trim_name = ft_strtrim(symbols[i].name, "_");
-    }
-    
-    for (i = 0; i < size - 1; i++)
-    {
-        swapped = 0;
-        for (j = 0; j < size - i - 1; j++)
-        {
-            if (!symbols[j].name || !symbols[j+1].name)
-                continue;
-                
-            const char *name1 = symbols[j].trim_name     ? symbols[j].trim_name     : symbols[j].name;
-            const char *name2 = symbols[j + 1].trim_name ? symbols[j + 1].trim_name : symbols[j + 1].name;
-
-            if (ft_strncmp(name1, name2, INT32_MAX) > 0)
-            {
-                Symbol tmp   = symbols[j];
-                symbols[j]   = symbols[j+1];
-                symbols[j+1] = tmp;
-                swapped      = 1;
-            }
-        }
-
-        if (swapped == 0)  // Array is sort
-            break;
-    }
-
-    for (i = 0; i < size; i++)
-    {
-        if (symbols[i].name)
-        {
-            if (arch == ARCH_32BIT)
-                printf("%08x %c %s\n", (unsigned int)symbols[i].address, symbols[i].type, symbols[i].name);
-            else
-                printf("%016lx %c %s\n", symbols[i].address, symbols[i].type, symbols[i].name);
-
-            free(symbols[i].trim_name);
-        }
-    }
-}
-

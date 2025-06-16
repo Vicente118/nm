@@ -12,6 +12,7 @@ SRCS =  src/nm.c \
 		src/file_handler.c \
 		src/elf_parser.c \
 		src/symbol_handler.c \
+		src/display.c \
 		src/utils.c
 
 OBJS = $(SRCS:.c=.o)

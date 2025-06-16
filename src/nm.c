@@ -4,10 +4,12 @@ int nm_process(File *file, const char *filename)
 {
     if (init_elf_structures(file) == -1)
         return -1;
-    
+
     Symbol *symbols = symbol_handler(file);
 
     sort_symbol(symbols, file->symtab_entries, file->arch);
+
+    display_symbols(symbols, file, file->symtab_entries);
 
     free_names(file->symtab_entries, symbols);
     free(symbols);

@@ -2,14 +2,14 @@
 
 int init_elf_structures(File *file)
 {
-    if (file->arch == 1)
+    if (file->arch == ARCH_32BIT)
     {
-        if (init_elf32(file) == -1);
+        if (init_elf32(file) == -1)
             return -1;
     }
     else
     {                    
-        if(init_elf64(file) == -1)
+        if (init_elf64(file) == -1)
             return -1;
     }
     return 0; 
@@ -44,19 +44,19 @@ int init_elf32(File *file)
 
         if (shdr[i].sh_type == SHT_SYMTAB && ft_strncmp(section_name, SYMTAB, ft_strlen(section_name)) == 0)
         {
-            symtab          = (Elf32_Sym *)((char *)file->addr + shdr[i].sh_offset);
-            symtab_entries  = shdr[i].sh_size / shdr[i].sh_entsize;
-
+            symtab          = (Elf32_Sym *)((char *)file->addr + shdr[i].sh_offset);    // Pointer to .symtab
+            symtab_entries  = shdr[i].sh_size / shdr[i].sh_entsize;                     // Numbers of symbols
+         
             if (shdr[i].sh_link < ehdr->e_shnum)
             {
-                strtab      = (char *)file->addr + shdr[shdr[i].sh_link].sh_offset;
-                strtab_size = shdr[shdr[i].sh_link].sh_size;
+                strtab      = (char *)file->addr + shdr[shdr[i].sh_link].sh_offset; // "String1\0String2\0...."
+                strtab_size = shdr[shdr[i].sh_link].sh_size;                        // Size of .strtab section
             }
             break;
         }
     }
 
-    if (!file->symtab || !file->strtab) 
+    if (!symtab || !strtab) 
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
         write(2, file->filename, ft_strlen(file->filename));
@@ -84,6 +84,16 @@ int init_elf64(File *file)
 
     file->ehdr = ehdr;
 
+    if (ehdr->e_shstrndx >= ehdr->e_shnum)
+    {
+        write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, file->filename, ft_strlen(file->filename));
+        write(2, ": Invalid section header string table index\n", 44);
+        munmap(file->addr, file->length);
+        close(file->fd);
+        return -1;
+    }
+    
     /* Init section table */
 
     shdr       = (Elf64_Shdr *)((char *)file->addr + ehdr->e_shoff);

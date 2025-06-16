@@ -14,7 +14,7 @@
 #define IS_DIR      "' is a directory\n"
 #define BAD_ARCH    ": Unsupported ELF file class\n"
 #define TRUNCATED   ": File truncated or corrupted\n"
-#define NO_SYMB     ": No symbols\n"
+#define NO_SYMB     ": no symbols\n"
 #define SUCH_FILE   "No such file\n"
 #define MALLOC_FAIL "malloc failed\n"
 #define SYMTAB      ".symtab"
@@ -76,7 +76,12 @@ char    get_symbol_type(File *file, void *sym_ptr, int arch);
 Symbol  *symbol_handler(File *file);
 void    sort_symbol(Symbol *symbols, int size, int arch);
 
+/// Display
+void    display_symbols(Symbol *symbols, File *file, int size);
 
+/// Utils
+int     ft_strcasecmp(const char *s1, const char *s2);
+char    *ft_itoa_hex(unsigned long n);
 /// Cleanup
 void    cleanup_file(File *file);
 void    free_names(int size, Symbol *symbols);

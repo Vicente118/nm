@@ -1,1 +1,4 @@
-- Check if condition in file_mapping() works for 32 bits and 64 bits (Probably not)
+- Check if condition in file_mapping() works for 32 bits and 64 bits (Probably not) OK
+- Don't forget to free symbols->name and symbols->trim_name OK
+- non null terminated strings case
+- printf to write()

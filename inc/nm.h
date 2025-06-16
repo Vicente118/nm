@@ -15,6 +15,7 @@
 #define BAD_ARCH    ": Unsupported ELF file class\n"
 #define TRUNCATED   ": File truncated or corrupted\n"
 #define NO_SYMB     ": No symbols\n"
+#define SUCH_FILE   "No such file\n"
 #define MALLOC_FAIL "malloc failed\n"
 #define SYMTAB      ".symtab"
 #define O_DIR        00200000
@@ -50,23 +51,13 @@ typedef struct
 typedef struct 
 {
     char        *name;          // Symbol name
+    char        *trim_name;
     uint64_t    address;        // Symbol address
-    uint64_t    size;           // Symbole size in bytes
-    uchar       type;           // Symbole type
-    uchar       bind;           // Binding (LOCAL, GLOBAL, WEAK)
-    uchar       visibility;     // Visibility
-    uint16_t    section_index;  // Index of the associate function
+    uchar       type;           // Symbol type
+
+    int         size;
 
 }   Symbol;
-
-
-typedef struct
-{
-    Symbol      *symbols;
-    size_t      count;
-    size_t      capacity;
-
-}   SymbolTable;
 
 
 
@@ -74,20 +65,21 @@ typedef struct
 int     argument_checker_and_process(int argc, char **argv, File *file);
 int     file_mapping(File *file, const char *filename);
 int     nm_process(File *file, const char *filename);
-void    init_elf_structures(File *file);
+int     init_elf_structures(File *file);
 int     init_elf32(File *file);
 int     init_elf64(File *file);
-
+void    extract_symbol_32(File *file, Elf32_Sym *sym, Symbol *symbol);
+void    extract_symbol_64(File *file, Elf64_Sym *sym, Symbol *symbol);
+char    get_symbol_type(File *file, void *sym_ptr, int arch);
 
 /// Symbol 
-void    symbol_handler(File *file);
-char    symbol_associate_letter();
-
+Symbol  *symbol_handler(File *file);
+void    sort_symbol(Symbol *symbols, int size, int arch);
 
 
 /// Cleanup
 void    cleanup_file(File *file);
-
+void    free_names(int size, Symbol *symbols);
 
 
 /*

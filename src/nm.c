@@ -2,8 +2,16 @@
 
 int nm_process(File *file, const char *filename)
 {
-    init_elf_structures(file);
-    symbol_handler(file);
+    if (init_elf_structures(file) == -1)
+        return -1;
+    
+    Symbol *symbols = symbol_handler(file);
+
+    sort_symbol(symbols, file->symtab_entries, file->arch);
+
+    free_names(file->symtab_entries, symbols);
+    free(symbols);
+    
     return 0;
 }
 

@@ -27,7 +27,7 @@ int    file_mapping(File *file, const char *filename)
         write(2, NM_SEM, ft_strlen(NM_SEM));
         write(2, filename, ft_strlen(filename));
         write(2, ": ", 2);
-        perror("");
+        write(2, SUCH_FILE, ft_strlen(SUCH_FILE));
         return -1;
     }
 

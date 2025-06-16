@@ -1,9 +1,18 @@
 #include "../inc/nm.h"
 
-void init_elf_structures(File *file)
+int init_elf_structures(File *file)
 {
-    if (file->arch == 1)    init_elf32(file);
-    else                    init_elf64(file); 
+    if (file->arch == 1)
+    {
+        if (init_elf32(file) == -1);
+            return -1;
+    }
+    else
+    {                    
+        if(init_elf64(file) == -1)
+            return -1;
+    }
+    return 0; 
 }
 
 
@@ -43,7 +52,6 @@ int init_elf32(File *file)
                 strtab      = (char *)file->addr + shdr[shdr[i].sh_link].sh_offset;
                 strtab_size = shdr[shdr[i].sh_link].sh_size;
             }
-
             break;
         }
     }
@@ -55,7 +63,7 @@ int init_elf32(File *file)
         write(2, NO_SYMB, ft_strlen(NO_SYMB));
         munmap(file->addr, file->length);
         close(file->fd);
-        exit(1);
+        return (-1);
     }
 
     file->symtab         = symtab;

@@ -22,9 +22,11 @@ Nice manual for ELF structs:
 Wikipedia:
 - https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#ELF_header
 
+Packer tutorial (Good intro to ELF):
+- https://fasterthanli.me/series/making-our-own-executable-packer
 
-
-
+Most complete documentation ATM:
+- https://gabi.xinuos.com/
 
 ###########################
 

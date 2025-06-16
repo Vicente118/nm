@@ -14,18 +14,25 @@
 
 int	ft_strncmp(const char *str1, const char *str2, size_t n)
 {
+	if (!str1 && str2)
+		return -1;
+	else if (!str2 && str1)
+		return 1;
+	else if (!str1 && !str2)
+		return 0;
+
 	size_t	i;
 
 	i = 1;
 	if (n == 0)
 		return (0);
-	while (*str1 && (*str1 == *str2) && i < n)
+	while (*str1 && (ft_tolower(*str1) == ft_tolower(*str2) && i < n))
 	{
 		str1++;
 		str2++;
 		i++;
 	}
-	return (*(unsigned char *)str1 - *(unsigned char *)str2);
+	return (ft_tolower(*str1) - ft_tolower(*str2));
 }
 /*
 int main(void)

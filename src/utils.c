@@ -102,6 +102,25 @@ int ft_strcasecmp(const char *s1, const char *s2)
     return (ft_tolower(((unsigned char)*s1)) - ft_tolower(((unsigned char)*s2)));
 }
 
+int is_valid_string(const char *start, const char *end, size_t max_len) 
+{
+    if (!start || start >= end)
+        return 0;
+    
+    const char  *ptr = start;
+    size_t      len  = 0;
+
+    while (ptr < end && *ptr != '\0') 
+    {
+        ptr++;
+        len++;
+
+        if (len >= max_len)
+            return 0;
+    }
+    
+    return (ptr < end && *ptr == '\0');
+}
 
 void    free_names(int size, Symbol *symbols)
 {

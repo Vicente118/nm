@@ -15,6 +15,8 @@
 #define BAD_ARCH    ": Unsupported ELF file class\n"
 #define TRUNCATED   ": File truncated or corrupted\n"
 #define NO_SYMB     ": no symbols\n"
+#define INV_SHO     ": Invalid section header offset\n"
+#define INV_SST     ": Invalid section string table\n"
 #define SUCH_FILE   "No such file\n"
 #define MALLOC_FAIL "malloc failed\n"
 #define SYMTAB      ".symtab"
@@ -82,6 +84,7 @@ void    display_symbols(Symbol *symbols, File *file, int size);
 /// Utils
 int     ft_strcasecmp(const char *s1, const char *s2);
 char    *ft_itoa_hex(unsigned long n);
+int     is_valid_string(const char *start, const char *end, size_t max_len);
 /// Cleanup
 void    cleanup_file(File *file);
 void    free_names(int size, Symbol *symbols);

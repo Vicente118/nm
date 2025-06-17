@@ -49,6 +49,9 @@ void    extract_symbol_32(File *file, Elf32_Sym *sym, Symbol *symbol)
 {
     char    *name   = (char *)file->strtab + sym->st_name;
 
+    if (sym->st_name >= file->strtab_size || !is_valid_string(name, (char *)file->strtab + file->strtab_size, file->strtab_size - sym->st_name)) 
+        return;
+
     symbol->name    = ft_strdup(name);
     symbol->address = sym->st_value;
 
@@ -76,6 +79,9 @@ void    extract_symbol_64(File *file, Elf64_Sym *sym, Symbol *symbol)
 {
     char    *name   = (char *)file->strtab + sym->st_name;
 
+    if (sym->st_name >= file->strtab_size || !is_valid_string(name, (char *)file->strtab + file->strtab_size, file->strtab_size - sym->st_name)) 
+        return;
+        
     symbol->name    = ft_strdup(name);
     symbol->address = sym->st_value;
 

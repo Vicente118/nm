@@ -38,6 +38,14 @@ int init_elf32(File *file)
 
     char        *shstrtab = (char *)file->addr + shdr[ehdr->e_shstrndx].sh_offset;
 
+    if (shdr[ehdr->e_shstrndx].sh_offset >= file->length || shdr[ehdr->e_shstrndx].sh_offset + shdr[ehdr->e_shstrndx].sh_size > file->length) 
+    {
+        write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, file->filename, ft_strlen(file->filename));
+        write(2, INV_SST, ft_strlen(INV_SST));
+        return -1;
+    }
+
     for (int i = 0; i < ehdr->e_shnum; i++)
     {
         char    *section_name = shstrtab + shdr[i].sh_name;
@@ -54,6 +62,14 @@ int init_elf32(File *file)
             }
             break;
         }
+    }
+
+    if (ehdr->e_shoff >= file->length || ehdr->e_shnum * ehdr->e_shentsize > file->length - ehdr->e_shoff)
+    {
+        write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, file->filename, ft_strlen(file->filename));
+        write(2, INV_SHO, ft_strlen(INV_SHO));
+        return -1;
     }
 
     if (!symtab || !strtab) 
@@ -108,6 +124,14 @@ int init_elf64(File *file)
 
     char        *shstrtab = (char *)file->addr + shdr[ehdr->e_shstrndx].sh_offset;      // Index of shrd to .shstrtab
 
+    if (shdr[ehdr->e_shstrndx].sh_offset >= file->length || shdr[ehdr->e_shstrndx].sh_offset + shdr[ehdr->e_shstrndx].sh_size > file->length) 
+    {
+        write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, file->filename, ft_strlen(file->filename));
+        write(2, INV_SST, ft_strlen(INV_SST));
+        return -1;
+    }
+
     for (int i = 0; i < ehdr->e_shnum; i++)         // Loop through each sections headers until finding .symtab
     {
         char    *section_name = shstrtab + shdr[i].sh_name;
@@ -124,6 +148,14 @@ int init_elf64(File *file)
             }
             break;
         }
+    }
+
+    if (ehdr->e_shoff >= file->length || ehdr->e_shnum * ehdr->e_shentsize > file->length - ehdr->e_shoff)
+    {
+        write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, file->filename, ft_strlen(file->filename));
+        write(2, INV_SHO, ft_strlen(INV_SHO));
+        return -1;
     }
 
     if (!symtab || !strtab) 

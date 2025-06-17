@@ -11,7 +11,10 @@ void display_symbols(Symbol *symbols, File *file, int size)
 
         if (symbols[i].type == 'U' || symbols[i].type == 'w')
         {
-            write(1, "                 ", 17);
+            if (file->arch == ARCH_32BIT)
+                write(1, "                 ", 9);
+            else
+                write(1, "                 ", 17);
             write(1, type, 1);
             write(1, " ", 1);
             write(1, symbols[i].name, ft_strlen(symbols[i].name));

@@ -4,13 +4,15 @@ int init_elf_structures(File *file)
 {
     if (file->arch == ARCH_32BIT)
     {
-        if (init_elf32(file) == -1)
-            return -1;
+        int ret = init_elf32(file);
+        if (ret != 0)
+            return ret;
     }
     else
-    {                    
-        if (init_elf64(file) == -1)
-            return -1;
+    {         
+        int ret = init_elf64(file);     
+        if (ret != 0)
+            return ret;
     }
     return 0; 
 }
@@ -27,8 +29,12 @@ int init_elf32(File *file)
     if (ehdr->e_shstrndx >= ehdr->e_shnum)
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, "warning: ", ft_strlen("warning: "));
         write(2, file->filename, ft_strlen(file->filename));
-        write(2, INV_SHSTI, ft_strlen(INV_SHSTI));
+        write(2, CORRUPT, ft_strlen(CORRUPT));
+        write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, file->filename, ft_strlen(file->filename));
+        write(2, NO_SYMB, ft_strlen(NO_SYMB));
         munmap(file->addr, file->length);
         close(file->fd);
         return -1;
@@ -125,11 +131,15 @@ int init_elf64(File *file)
     if (ehdr->e_shstrndx >= ehdr->e_shnum)
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, "warning: ", ft_strlen("warning: "));
         write(2, file->filename, ft_strlen(file->filename));
-        write(2, INV_SHSTI, ft_strlen(INV_SHSTI));
+        write(2, CORRUPT, ft_strlen(CORRUPT));
+        write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, file->filename, ft_strlen(file->filename));
+        write(2, NO_SYMB, ft_strlen(NO_SYMB));
         munmap(file->addr, file->length);
         close(file->fd);
-        return -1;
+        return -2;
     }
     
     /* Init section table */
@@ -148,10 +158,18 @@ int init_elf64(File *file)
 
     for (int i = 0; i < ehdr->e_shnum; i++)
     {
-        if (shdr[i].sh_name >= shdr[ehdr->e_shstrndx].sh_size) {
+        if (shdr[i].sh_name >= shdr[ehdr->e_shstrndx].sh_size)
+        {
+            write(2, "bfd plugin: ", ft_strlen("bfd plugin: "));
+            write(2, file->filename, ft_strlen(file->filename));
+            write(2, ": file to short\n", ft_strlen(": file to short\n"));
+            write(2, NM_SEM, ft_strlen(NM_SEM));
+            write(2, "warning: ", ft_strlen("warning: "));
+            write(2, file->filename, ft_strlen(file->filename));
+            write(2, CORRUPT, ft_strlen(CORRUPT));
             write(2, NM_SEM, ft_strlen(NM_SEM));
             write(2, file->filename, ft_strlen(file->filename));
-            write(2, WR_FORM, ft_strlen(WR_FORM));
+            write(2, NO_SYMB, ft_strlen(NO_SYMB));
             munmap(file->addr, file->length);
             close(file->fd);
             return -1;

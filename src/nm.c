@@ -2,8 +2,9 @@
 
 int nm_process(File *file, const char *filename)
 {
-    if (init_elf_structures(file) == -1)
-        return -1;
+    int ret = init_elf_structures(file);
+    if (ret != 0)
+        return ret;
 
     Symbol *symbols = symbol_handler(file);
 
@@ -25,7 +26,8 @@ int main(int argc, char **argv)
     ft_memset(&file, 0, sizeof(File));
     file.fd = -1;
 
-    if (argument_checker_and_process(argc, argv, &file) == -1)
+    int ret = argument_checker_and_process(argc, argv, &file);
+    if (ret == -1)
         return 1;
 
     return 0;

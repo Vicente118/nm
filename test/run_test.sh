@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Ansi color code variables
 red="\e[0;91m"
 blue="\e[0;94m"
@@ -57,6 +58,8 @@ print_help () {
 }
 
 run_comparison () {
+	export LC_ALL=C
+	export LC_COLLATE=C
 	local arg="$1"
 	local err_nb=0
 

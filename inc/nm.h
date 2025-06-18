@@ -18,6 +18,7 @@
 #define INV_SHO     ": Invalid section header offset\n"
 #define INV_SST     ": Invalid section string table\n"
 #define INV_SHSTI   ": Invalid section header string table index\n"
+#define CORRUPT     " has a corrupt string table index - ignoring\n"
 #define SUCH_FILE   "No such file\n"
 #define MALLOC_FAIL "malloc failed\n"
 #define SYMTAB      ".symtab"

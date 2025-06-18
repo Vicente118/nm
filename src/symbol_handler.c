@@ -59,7 +59,7 @@ void    extract_symbol_32(File *file, Elf32_Sym *sym, Symbol *symbol)
 
     if (ft_strncmp(name, "data_start", INT32_MAX) == 0)
         type = 'W';
-    else if (ft_strnstr(name, "_array_entry", INT32_MAX))
+    else if (ft_strnstr(name, "_array_entry", INT32_MAX) || ft_strncmp(name, "__init_array_start", INT32_MAX) == 0 ||  ft_strncmp(name, "__init_array_end", INT32_MAX) == 0)
         type = 'd';
     else if (ft_strncmp(name, "__abi_tag", INT32_MAX) == 0)
         type = 'r';
@@ -89,7 +89,7 @@ void    extract_symbol_64(File *file, Elf64_Sym *sym, Symbol *symbol)
 
     if (ft_strncmp(name, "data_start", INT32_MAX) == 0)
         type = 'W';
-    else if (ft_strnstr(name, "_array_entry", INT32_MAX))
+    else if (ft_strnstr(name, "_array_entry", INT32_MAX) || ft_strncmp(name, "__init_array_start", INT32_MAX) == 0 ||  ft_strncmp(name, "__init_array_end", INT32_MAX) == 0)
         type = 'd';
     else if (ft_strncmp(name, "__abi_tag", INT32_MAX) == 0)
         type = 'r';
@@ -189,36 +189,33 @@ char    get_symbol_type(File *file, void *sym_ptr, int arch)
             sh_flags = shdr64->sh_flags;
         }
     }
-    // Pour les symboles dans des sections normales
+
     if (sym_type == STT_GNU_IFUNC)
         type_char = 'i';
     else if (sh_type == SHT_PROGBITS && (sh_flags & SHF_EXECINSTR))
-        type_char = 'T';  // Code exécutable
+        type_char = 'T';  // Executable code
     else if (sh_type == SHT_PROGBITS && (sh_flags & SHF_WRITE))
-        type_char = 'D';  // Données initialisées en lecture-écriture
+        type_char = 'D';  // Initialized data for Read/Write
     else if (sh_type == SHT_PROGBITS)
-        type_char = 'R';  // Données en lecture seule
+        type_char = 'R';  // Read-Only data
     else if (sh_type == SHT_DYNAMIC)
-        type_char = 'D';  // Section dynamique
+        type_char = 'D';  // Dynamic section
     else if (sh_type == SHT_INIT_ARRAY)
-        type_char = 'T';  // Section d'initialisation
+        type_char = 'T';  // Initialization section
     else if (sh_type == SHT_FINI_ARRAY)
-        type_char = 'T';  // Section de finalisation
+        type_char = 'T';  // Finalization section
     else if (sh_type == SHT_NOBITS && (sh_flags & SHF_ALLOC) && (sh_flags & SHF_WRITE))
-        type_char = 'B';  // Données non initialisées (BSS)
-    // Traiter explicitement les sections spécifiques
+        type_char = 'B';  // Uninitialized data (BSS)
     else if (sh_type == SHT_DYNSYM || sh_type == SHT_SYMTAB)
-        type_char = 'r';  // Tables de symboles
-    // Types de symboles spécifiques
+        type_char = 'r';  // Symbol table
     else if (sym_type == STT_FUNC)
-        type_char = 'T';  // Fonction
+        type_char = 'T';  // Function
     else if (sym_type == STT_OBJECT)
-        type_char = 'D';  // Objet/variable
+        type_char = 'D';  // Object/variable
     else if (sym_type == STT_SECTION)
         type_char = 'S';  // Section
     else if (sym_type == STT_FILE)
-        type_char = 'f';  // Fichier
-    // Cas par défaut pour les objets dans des sections connues
+        type_char = 'f';  // File
     else if (sh_flags & SHF_WRITE)
         type_char = 'D';
     else if (sh_flags & SHF_ALLOC)

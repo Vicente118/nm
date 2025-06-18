@@ -1,6 +1,6 @@
 #include "../inc/nm.h"
 
-void sort_symbol(Symbol *symbols, int size, int arch)
+void sort_symbol(Symbol *symbols, File *file, int size, int arch)
 {
     int i, j;
     int swapped;
@@ -10,13 +10,23 @@ void sort_symbol(Symbol *symbols, int size, int arch)
         if (symbols[i].name)
         {
             const char *name = symbols[i].name;
-            while (*name == '_')
+            while (*name == '_' || *name == '.')
                 name++;
             
             if (name != symbols[i].name)
                 symbols[i].trim_name = ft_strdup(name);
             else
                 symbols[i].trim_name = ft_strdup(symbols[i].name);
+            
+            if (!symbols[i].trim_name)
+            {
+                for (int j = i - 1; i >= 0; i--)
+                    free(symbols[j].trim_name);
+
+                write(2, MALLOC_FAIL, ft_strlen(MALLOC_FAIL));
+                cleanup_file(file);
+                exit(1);
+            }
         }
     }
 
@@ -38,12 +48,12 @@ void sort_symbol(Symbol *symbols, int size, int arch)
                 swapped        = 1;
                 continue;
             }
-
+            
             if (!symbols[j].name)
                 continue;
 
             int cmp = ft_strcasecmp(name1, name2);
-
+            
             if (cmp == 0)
             {
                 int l = 0;
@@ -99,6 +109,13 @@ int ft_strcasecmp(const char *s1, const char *s2)
         s1++;
         s2++;
     }
+
+    if (*s1 == '_' && *s2 != '_')
+            return 1;
+
+    if (*s2 == '_' && *s1 != '_')
+            return -1;
+
     return (ft_tolower(((unsigned char)*s1)) - ft_tolower(((unsigned char)*s2)));
 }
 

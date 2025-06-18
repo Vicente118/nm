@@ -1,4 +1,4 @@
-NAME = nm
+NAME = ft_nm
 
 LIBFT = libft/libft.a
 

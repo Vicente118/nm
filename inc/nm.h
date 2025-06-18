@@ -17,6 +17,7 @@
 #define NO_SYMB     ": no symbols\n"
 #define INV_SHO     ": Invalid section header offset\n"
 #define INV_SST     ": Invalid section string table\n"
+#define INV_SHSTI   ": Invalid section header string table index\n"
 #define SUCH_FILE   "No such file\n"
 #define MALLOC_FAIL "malloc failed\n"
 #define SYMTAB      ".symtab"
@@ -76,7 +77,7 @@ char    get_symbol_type(File *file, void *sym_ptr, int arch);
 
 /// Symbol 
 Symbol  *symbol_handler(File *file);
-void    sort_symbol(Symbol *symbols, int size, int arch);
+void sort_symbol(Symbol *symbols, File *file, int size, int arch);
 
 /// Display
 void    display_symbols(Symbol *symbols, File *file, int size);

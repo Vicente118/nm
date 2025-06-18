@@ -2,3 +2,4 @@
 - Don't forget to free symbols->name and symbols->trim_name OK
 - non null terminated strings case
 - printf to write() OK
+- Not perfectly sorted with : g __g _g __G

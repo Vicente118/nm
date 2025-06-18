@@ -24,6 +24,16 @@ int init_elf32(File *file)
 
     file->ehdr = ehdr;
 
+    if (ehdr->e_shstrndx >= ehdr->e_shnum)
+    {
+        write(2, NM_SEM, ft_strlen(NM_SEM));
+        write(2, file->filename, ft_strlen(file->filename));
+        write(2, INV_SHSTI, ft_strlen(INV_SHSTI));
+        munmap(file->addr, file->length);
+        close(file->fd);
+        return -1;
+    }
+    
     /* Init section table */
 
     shdr       = (Elf32_Shdr *)((char *)file->addr + ehdr->e_shoff);
@@ -38,6 +48,18 @@ int init_elf32(File *file)
 
     char        *shstrtab = (char *)file->addr + shdr[ehdr->e_shstrndx].sh_offset;
 
+    for (int i = 0; i < ehdr->e_shnum; i++)
+    {
+        if (shdr[i].sh_name >= shdr[ehdr->e_shstrndx].sh_size) {
+            write(2, NM_SEM, ft_strlen(NM_SEM));
+            write(2, file->filename, ft_strlen(file->filename));
+            write(2, WR_FORM, ft_strlen(WR_FORM));
+            munmap(file->addr, file->length);
+            close(file->fd);
+            return -1;
+        }
+    }
+    
     if (shdr[ehdr->e_shstrndx].sh_offset >= file->length || shdr[ehdr->e_shstrndx].sh_offset + shdr[ehdr->e_shstrndx].sh_size > file->length) 
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
@@ -104,7 +126,7 @@ int init_elf64(File *file)
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
         write(2, file->filename, ft_strlen(file->filename));
-        write(2, ": Invalid section header string table index\n", 44);
+        write(2, INV_SHSTI, ft_strlen(INV_SHSTI));
         munmap(file->addr, file->length);
         close(file->fd);
         return -1;
@@ -124,6 +146,18 @@ int init_elf64(File *file)
 
     char        *shstrtab = (char *)file->addr + shdr[ehdr->e_shstrndx].sh_offset;      // Index of shrd to .shstrtab
 
+    for (int i = 0; i < ehdr->e_shnum; i++)
+    {
+        if (shdr[i].sh_name >= shdr[ehdr->e_shstrndx].sh_size) {
+            write(2, NM_SEM, ft_strlen(NM_SEM));
+            write(2, file->filename, ft_strlen(file->filename));
+            write(2, WR_FORM, ft_strlen(WR_FORM));
+            munmap(file->addr, file->length);
+            close(file->fd);
+            return -1;
+        }
+    }
+    
     if (shdr[ehdr->e_shstrndx].sh_offset >= file->length || shdr[ehdr->e_shstrndx].sh_offset + shdr[ehdr->e_shstrndx].sh_size > file->length) 
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));

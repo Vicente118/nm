@@ -1,0 +1,1 @@
+bfd plugin: test/obj/obj4_shstrndx_corrupted_x64.o: ELF section name out of range

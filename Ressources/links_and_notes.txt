@@ -28,6 +28,10 @@ Packer tutorial (Good intro to ELF):
 Most complete documentation ATM:
 - https://gabi.xinuos.com/
 
+ELF Format cheatsheet:
+- https://gist.github.com/x0nu11byt3/bcb35c3de461e5fb66173071a2379779
+
+
 ###########################
 
 - The segments contain information that is necessary for runtime execution of the file,

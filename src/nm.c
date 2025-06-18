@@ -7,7 +7,7 @@ int nm_process(File *file, const char *filename)
 
     Symbol *symbols = symbol_handler(file);
 
-    sort_symbol(symbols, file->symtab_entries, file->arch);
+    sort_symbol(symbols, file, file->symtab_entries, file->arch);
 
     display_symbols(symbols, file, file->symtab_entries);
 

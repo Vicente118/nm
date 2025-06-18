@@ -1,17 +1,21 @@
 #include "../inc/nm.h"
 
+static int handle_error(File *file, const char *filename, const char *error_msg)
+{
+    if (file->addr)
+        munmap(file->addr, file->length);
+    if (file->fd != -1)
+        close(file->fd);
+        
+    write(2, NM_SEM, ft_strlen(NM_SEM));
+    write(2, filename, ft_strlen(filename));
+    write(2, error_msg, ft_strlen(error_msg));
+    
+    return -1;
+}
+
 int    file_mapping(File *file, const char *filename)
 {
-    /*
-        1. Check if filename is DIR
-        2. Check if open() failed
-        3. Check is fstat failed
-        4. Check if mmap()m failed
-        5. Check the magic bytes
-        6. Check Architecture
-        7.  
-    */
-
     if (open(filename, O_DIR) >= 0)
     {
         write(2, NM_WARN, ft_strlen(NM_WARN));
@@ -20,9 +24,7 @@ int    file_mapping(File *file, const char *filename)
         return -1;
     }
 
-    file->fd = open(filename, O_RDONLY);
-
-    if (file->fd == -1)
+    if ((file->fd = open(filename, O_RDONLY)) == -1)
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
         write(2, "'", 2);
@@ -41,54 +43,75 @@ int    file_mapping(File *file, const char *filename)
     }
 
     file->addr = mmap(NULL, file->sb.st_size, PROT_READ, MAP_PRIVATE, file->fd, 0);
-    
+
     if (file->addr == MAP_FAILED)
     {
         perror("mmap");
         close(file->fd);
         return -1;
     }
-
+    
     file->length = file->sb.st_size;
 
-    if (file->length < sizeof(Elf64_Ehdr) || ft_memcmp(file->addr, ELFMAG, SELFMAG) != 0)
-    {
-        write(2, NM_SEM, ft_strlen(NM_SEM));
-        write(2, filename, ft_strlen(filename));
-        write(2, WR_FORM, ft_strlen(WR_FORM));
-        munmap(file->addr, file->length);
-        close(file->fd);
-        return -1;
-    }
 
-    Elf32_Ehdr  *ehdr = (Elf32_Ehdr *)file->addr;
+    if (file->length < sizeof(Elf64_Ehdr) || ft_memcmp(file->addr, ELFMAG, SELFMAG) != 0)
+        return handle_error(file, filename, WR_FORM);
+
+    Elf32_Ehdr *ehdr = (Elf32_Ehdr *)file->addr;
 
     if (ehdr->e_ident[EI_CLASS] == ELFCLASS32)
         file->arch = ARCH_32BIT;
     else if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
         file->arch = ARCH_64BIT;
     else
+        return handle_error(file, filename, BAD_ARCH);
+
+    if (file->arch == ARCH_64BIT)
     {
-        write(2, NM_SEM, ft_strlen(NM_SEM));
-        write(2, filename, ft_strlen(filename));
-        write(2, BAD_ARCH, ft_strlen(BAD_ARCH));
-        munmap(file->addr, file->length);
-        close(file->fd);
-        return -1;
+        Elf64_Ehdr *ehdr64 = (Elf64_Ehdr *)file->addr;
+        
+        if (ehdr64->e_shnum > 0 && (
+            ehdr64->e_shentsize == 0 || 
+            ehdr64->e_shoff > file->length ||
+            ehdr64->e_shnum > (SIZE_MAX - ehdr64->e_shoff) / ehdr64->e_shentsize ||
+            ehdr64->e_shoff + ehdr64->e_shnum * ehdr64->e_shentsize > file->length))
+        {
+            write(2, "bfd plugin: ", ft_strlen("bfd plugin: "));
+            write(2, filename, ft_strlen(filename));
+            write(2, ": file to short\n", ft_strlen(": file to short\n"));
+            return handle_error(file, filename, WR_FORM);
+        }
+    }
+    else 
+    {
+        Elf32_Ehdr *ehdr32 = (Elf32_Ehdr *)file->addr;
+        
+        if (ehdr32->e_shnum > 0 && (
+            ehdr32->e_shentsize == 0 || 
+            ehdr32->e_shoff > file->length ||
+            ehdr32->e_shnum > (SIZE_MAX - ehdr32->e_shoff) / ehdr32->e_shentsize ||
+            ehdr32->e_shoff + ehdr32->e_shnum * ehdr32->e_shentsize > file->length))
+        {
+            write(2, "bfd plugin: ", ft_strlen("bfd plugin: "));
+            write(2, filename, ft_strlen(filename));
+            write(2, ": file to short\n", ft_strlen(": file to short\n"));
+            return handle_error(file, filename, WR_FORM);
+        }
     }
 
-    if (ehdr->e_shoff + ehdr->e_shnum * ehdr->e_shentsize > file->length) 
-    {
-        write(2, NM_SEM, ft_strlen(NM_SEM));
-        write(2, filename, ft_strlen(filename));
-        write(2, TRUNCATED, ft_strlen(TRUNCATED));
-        munmap(file->addr, file->length);
-        close(file->fd);
-        return -1;
-    }
+    if ((ehdr->e_ident[EI_DATA] != 1 && ehdr->e_ident[EI_DATA] != 2) || (ehdr->e_ident[EI_VERSION] != 1))
+        return handle_error(file, filename, WR_FORM);
+
+    if (ehdr->e_shoff + ehdr->e_shnum * ehdr->e_shentsize > file->length)
+        return handle_error(file, filename, TRUNCATED);
+
+    if (ehdr->e_shoff == 0 && ehdr->e_shnum > 0)
+        return handle_error(file, filename, WR_FORM);
+
+    if (ehdr->e_shstrndx >= ehdr->e_shnum && ehdr->e_shnum != 0)
+        return handle_error(file, filename, WR_FORM);
 
     file->filename = filename;
-
     return 0;
 }
 
@@ -116,6 +139,9 @@ int argument_checker_and_process(int argc, char **argv, File *file)
     else 
     {
         int success_count = 0;
+
+        write(1, "\n", 1);
+        
         for (int i = 1; i < argc; i++)
         {
             if (file_mapping(file, argv[i]) == -1)

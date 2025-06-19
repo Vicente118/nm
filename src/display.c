@@ -7,7 +7,7 @@ void display_symbols(Symbol *symbols, File *file, int size)
         if (symbols[i].name == NULL)
             continue;
 
-        char type[2] = {symbols[i].type, '\0'};
+        uchar *type = (&(symbols[i].type));
 
         if (symbols[i].type == 'U' || symbols[i].type == 'w')
         {

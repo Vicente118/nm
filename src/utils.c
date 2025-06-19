@@ -3,11 +3,11 @@
 void sort_symbol(Symbol *symbols, File *file, int size, int arch)
 {
     int i, j;
-    int swapped;
+    int sort;
     
     for (i = 0; i < size - 1; i++)
     {
-        swapped = 0;
+        sort = 0;
         
         for (j = 0; j < size - i - 1; j++)
         {
@@ -20,7 +20,7 @@ void sort_symbol(Symbol *symbols, File *file, int size, int arch)
                 Symbol tmp     = symbols[j];
                 symbols[j]     = symbols[j + 1];
                 symbols[j + 1] = tmp;
-                swapped        = 1;
+                sort           = 1;
                 continue;
             }
             
@@ -39,11 +39,11 @@ void sort_symbol(Symbol *symbols, File *file, int size, int arch)
                 Symbol tmp     = symbols[j];
                 symbols[j]     = symbols[j + 1];
                 symbols[j + 1] = tmp;
-                swapped        = 1;
+                sort        = 1;
             }
         }
 
-        if (swapped == 0) 
+        if (sort == 0) 
             break;
     }
 }
@@ -60,10 +60,11 @@ int ft_strcasecmp(const char *s1, const char *s2)
     return ((unsigned char)*s1 - (unsigned char)*s2) ;
 }
 
+
 int is_valid_string(const char *start, const char *end, size_t max_len) 
 {
     if (!start || start >= end)
-        return 0;
+    return 0;
     
     const char  *ptr = start;
     size_t      len  = 0;
@@ -74,7 +75,7 @@ int is_valid_string(const char *start, const char *end, size_t max_len)
         len++;
 
         if (len >= max_len)
-            return 0;
+        return 0;
     }
     
     return (ptr < end && *ptr == '\0');
@@ -85,10 +86,9 @@ void    free_names(int size, Symbol *symbols)
     for (size_t i = 0; i < size; i++)
     {
         if (symbols[i].name)
-            free(symbols[i].name);
+        free(symbols[i].name);
     }
 }
-
 
 char *ft_itoa_hex(unsigned long n)
 {
@@ -104,7 +104,7 @@ char *ft_itoa_hex(unsigned long n)
     
     char *result = (char *)malloc(sizeof(char) * (len + 1));
     if (!result)
-        return NULL;
+    return NULL;
     
     result[len] = '\0';
     

@@ -45,17 +45,17 @@ Symbol    *symbol_handler(File *file)
 }
 
 
-void    extract_symbol_32(File *file, Elf32_Sym *sym, Symbol *symbol)
+void    extract_symbol_32(File *file, Elf32_Sym *symtab, Symbol *symbol)
 {
-    char    *name   = (char *)file->strtab + sym->st_name;
+    char    *name   = (char *)file->strtab + symtab->st_name;
 
-    if (sym->st_name >= file->strtab_size || !is_valid_string(name, (char *)file->strtab + file->strtab_size, file->strtab_size - sym->st_name)) 
+    if (symtab->st_name >= file->strtab_size || !is_valid_string(name, (char *)file->strtab + file->strtab_size, file->strtab_size - symtab->st_name)) 
         return;
 
     symbol->name    = ft_strdup(name);
-    symbol->address = sym->st_value;
+    symbol->address = symtab->st_value;
 
-    char    type    = get_symbol_type(file, sym, ARCH_32BIT);
+    char    type    = get_symbol_type(file, symtab, ARCH_32BIT);
 
     if (ft_strncmp(name, "data_start", INT32_MAX) == 0)
         type = 'W';
@@ -66,7 +66,7 @@ void    extract_symbol_32(File *file, Elf32_Sym *sym, Symbol *symbol)
         
     if (type != '?' && type != 'U' && type != 'w')
     {
-        if (ELF32_ST_BIND(sym->st_info) == STB_LOCAL)
+        if (ELF32_ST_BIND(symtab->st_info) == STB_LOCAL)
             type = ft_tolower(type);
         else
             type = ft_toupper(type);
@@ -75,17 +75,17 @@ void    extract_symbol_32(File *file, Elf32_Sym *sym, Symbol *symbol)
     symbol->type = type;
 }
 
-void    extract_symbol_64(File *file, Elf64_Sym *sym, Symbol *symbol)
+void    extract_symbol_64(File *file, Elf64_Sym *symtab, Symbol *symbol)
 {
-    char    *name   = (char *)file->strtab + sym->st_name;
+    char    *name   = (char *)file->strtab + symtab->st_name;
 
-    if (sym->st_name >= file->strtab_size || !is_valid_string(name, (char *)file->strtab + file->strtab_size, file->strtab_size - sym->st_name)) 
+    if (symtab->st_name >= file->strtab_size || !is_valid_string(name, (char *)file->strtab + file->strtab_size, file->strtab_size - symtab->st_name)) 
         return;
         
     symbol->name    = ft_strdup(name);
-    symbol->address = sym->st_value;
+    symbol->address = symtab->st_value;
 
-    char    type    = get_symbol_type(file, sym, ARCH_64BIT);
+    char    type    = get_symbol_type(file, symtab, ARCH_64BIT);
 
     if (ft_strncmp(name, "data_start", INT32_MAX) == 0)
         type = 'W';
@@ -96,7 +96,7 @@ void    extract_symbol_64(File *file, Elf64_Sym *sym, Symbol *symbol)
 
     if (type != '?' && type != 'U' && type != 'w')
     {
-        if (ELF64_ST_BIND(sym->st_info) == STB_LOCAL)
+        if (ELF64_ST_BIND(symtab->st_info) == STB_LOCAL)
             type = ft_tolower(type);
         else
             type = ft_toupper(type);
@@ -166,7 +166,7 @@ char    get_symbol_type(File *file, void *sym_ptr, int arch)
             if (st_shndx == SHN_UNDEF)
                 return 'w';  // weak, undefined
             else
-                return (sym_type == STT_OBJECT) ? 'V' : 'W';  // weak, defined (V pour objets, W pour fonctions)
+                return (sym_type == STT_OBJECT) ? 'V' : 'W';  // weak, defined (V for objects, W for functions)
         }
 
         /* Special sections */

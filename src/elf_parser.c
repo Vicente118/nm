@@ -53,7 +53,7 @@ int init_elf32(File *file)
     size_t      strtab_size    = 0;
 
     char        *shstrtab = (char *)file->addr + shdr[ehdr->e_shstrndx].sh_offset;
-
+    
     for (int i = 0; i < ehdr->e_shnum; i++)
     {
         if (shdr[i].sh_name >= shdr[ehdr->e_shstrndx].sh_size) {
@@ -195,9 +195,10 @@ int init_elf64(File *file)
 
             if (shdr[i].sh_link < ehdr->e_shnum)        // check if the index of .strtab of shdr is less than the number of section
             {
-                strtab      = (char *)file->addr + shdr[shdr[i].sh_link].sh_offset;
-                strtab_size = shdr[shdr[i].sh_link].sh_size;
+                strtab      = (char *)file->addr + shdr[shdr[i].sh_link].sh_offset;     // pointer to string table linked to symtab
+                strtab_size = shdr[shdr[i].sh_link].sh_size;                            // Size in bytes of all the strtab
             }
+            
             break;
         }
     }

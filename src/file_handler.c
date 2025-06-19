@@ -42,6 +42,9 @@ int    file_mapping(File *file, const char *filename)
         return -1;
     }
 
+    if (file->sb.st_size == 0)
+        return -1;
+
     file->addr = mmap(NULL, file->sb.st_size, PROT_READ, MAP_PRIVATE, file->fd, 0);
 
     if (file->addr == MAP_FAILED)
@@ -69,12 +72,12 @@ int    file_mapping(File *file, const char *filename)
     if (file->arch == ARCH_64BIT)
     {
         Elf64_Ehdr *ehdr64 = (Elf64_Ehdr *)file->addr;
-        
-        if (ehdr64->e_shnum > 0 && (
-            ehdr64->e_shentsize == 0 || 
-            ehdr64->e_shoff > file->length ||
-            ehdr64->e_shnum > (SIZE_MAX - ehdr64->e_shoff) / ehdr64->e_shentsize ||
-            ehdr64->e_shoff + ehdr64->e_shnum * ehdr64->e_shentsize > file->length))
+
+        if (ehdr64->e_shnum > 0 && (                                /* File contains at least one section */          
+            ehdr64->e_shentsize == 0 ||                             /* Check if the section entry size is 0 */
+            ehdr64->e_shoff > file->length ||                       /* Check if offset until section table is valid (Inside file) */
+            ehdr64->e_shnum > (SIZE_MAX - ehdr64->e_shoff) / ehdr64->e_shentsize ||     /* Protect against integer overflow */
+            ehdr64->e_shoff + ehdr64->e_shnum * ehdr64->e_shentsize > file->length))    /* Check that the entire section table is in the file */
         {
             write(2, "bfd plugin: ", ft_strlen("bfd plugin: "));
             write(2, filename, ft_strlen(filename));
@@ -105,13 +108,11 @@ int    file_mapping(File *file, const char *filename)
     if (ehdr->e_shoff + ehdr->e_shnum * ehdr->e_shentsize > file->length)
         return handle_error(file, filename, TRUNCATED);
 
-    if (ehdr->e_shoff == 0 && ehdr->e_shnum > 0)
-        return handle_error(file, filename, WR_FORM);
-
-    if (ehdr->e_shstrndx >= ehdr->e_shnum && ehdr->e_shnum != 0)
+    if (ehdr->e_shoff == 0 && ehdr->e_shnum > 0)        /* No section header offset but at least one section exist*/
         return handle_error(file, filename, WR_FORM);
 
     file->filename = filename;
+
     return 0;
 }
 

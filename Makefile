@@ -35,3 +35,7 @@ clean :
 	@$(RM) src/*.o
 
 re : fclean all
+
+docker :
+	docker build -t ft_nm_image .
+	docker run -it --rm ft_nm_image

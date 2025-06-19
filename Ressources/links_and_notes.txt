@@ -166,3 +166,46 @@ while sections contain important data for linking and relocation.
                             │  sh_size          │     │ "symbol2\0"       │
                             └───────────────────┘     │ ...               │
                                                       └───────────────────┘
+
+
+
+- Symbols types
+
+# Types de Symboles dans l'Implémentation de ft_nm
+
+Voici un récapitulatif des types de symboles utilisés dans votre implémentation de ft_nm, avec leurs significations et conditions d'attribution :
+
+| Type | Majuscule | Minuscule | Description | Condition d'attribution |
+|------|-----------|-----------|-------------|-------------------------|
+| `A` | Global | Local | Symbole absolu | `st_shndx == SHN_ABS` |
+| `B` | Global | Local | Symbole dans la section BSS (données non initialisées) | `sh_type == SHT_NOBITS && (sh_flags & SHF_ALLOC) && (sh_flags & SHF_WRITE)` |
+| `C` | Global | Local | Symbole commun (non alloué) | `st_shndx == SHN_COMMON` |
+| `D` | Global | Local | Données initialisées en section de données | `sh_type == SHT_PROGBITS && (sh_flags & SHF_WRITE)` ou `sh_type == SHT_DYNAMIC` |
+| `f` | - | Uniquement local | Symbole de fichier | `sym_type == STT_FILE` |
+| `i` | Global | Local | Fonction d'interface indirecte | `sym_type == STT_GNU_IFUNC` |
+| `R` | Global | Local | Données en lecture seule (constantes) | `sh_type == SHT_PROGBITS` (sans `SHF_WRITE` ou `SHF_EXECINSTR`) |
+| `r` | Global | Local | Tables de symboles ou sections avec flag ALLOC | `sh_type == SHT_DYNSYM || sh_type == SHT_SYMTAB` ou `sh_flags & SHF_ALLOC` |
+| `S` | Global | Local | Symbole de section | `sym_type == STT_SECTION` |
+| `T` | Global | Local | Code exécutable | `sh_type == SHT_PROGBITS && (sh_flags & SHF_EXECINSTR)` ou `sh_type == SHT_INIT_ARRAY` ou `sh_type == SHT_FINI_ARRAY` |
+| `U` | Toujours majuscule | - | Symbole non défini (référence externe) | `st_shndx == SHN_UNDEF` |
+| `V` | Global | - | Symbole faible (objet) défini | `sym_bind == STB_WEAK && st_shndx != SHN_UNDEF && sym_type == STT_OBJECT` |
+| `W` | Global | Local | Symbole faible (fonction) défini ou type forcé | `sym_bind == STB_WEAK && st_shndx != SHN_UNDEF && sym_type != STT_OBJECT` ou `name == "data_start"` |
+| `w` | Toujours minuscule | - | Symbole faible non défini | `sym_bind == STB_WEAK && st_shndx == SHN_UNDEF` |
+| `?` | - | - | Type inconnu | Valeur par défaut |
+
+## Notes supplémentaires:
+
+1. **Cas spéciaux par nom** : Certains symboles reçoivent un type spécifique basé sur leur nom :
+   - `data_start` → `W`
+   - `__init_array_start`, `__init_array_end`, et les symboles contenant `_array_entry` → `d`
+   - `__abi_tag` → `r`
+
+2. **Casse du symbole** :
+   - Les symboles avec `STB_LOCAL` sont en minuscule
+   - Les symboles avec d'autres liaisons (généralement `STB_GLOBAL`) sont en majuscule
+   - Exceptions : `U`, `w` et `?` qui ont une casse fixe
+
+3. **Symboles faibles** :
+   - Les symboles faibles (`STB_WEAK`) peuvent être `V`, `W` ou `w` selon qu'ils sont définis ou non
+
+Cette implémentation couvre tous les types courants que vous verriez dans la sortie de la commande `nm` standard, avec quelques ajustements personnalisés pour certains noms de symboles spécifiques.

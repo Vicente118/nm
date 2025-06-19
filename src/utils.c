@@ -64,7 +64,7 @@ int ft_strcasecmp(const char *s1, const char *s2)
 int is_valid_string(const char *start, const char *end, size_t max_len) 
 {
     if (!start || start >= end)
-    return 0;
+        return 0;
     
     const char  *ptr = start;
     size_t      len  = 0;
@@ -75,7 +75,7 @@ int is_valid_string(const char *start, const char *end, size_t max_len)
         len++;
 
         if (len >= max_len)
-        return 0;
+            return 0;
     }
     
     return (ptr < end && *ptr == '\0');

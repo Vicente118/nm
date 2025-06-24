@@ -30,16 +30,14 @@ void sort_symbol(Symbol *symbols, File *file, int size, int arch)
             int cmp = ft_strcasecmp(name1, name2);
             
             if (cmp == 0)
-            {
                 continue;
-            }
 
             if (cmp > 0) 
             {
                 Symbol tmp     = symbols[j];
                 symbols[j]     = symbols[j + 1];
                 symbols[j + 1] = tmp;
-                sort        = 1;
+                sort           = 1;
             }
         }
 
@@ -86,7 +84,7 @@ void    free_names(int size, Symbol *symbols)
     for (size_t i = 0; i < size; i++)
     {
         if (symbols[i].name)
-        free(symbols[i].name);
+            free(symbols[i].name);
     }
 }
 
@@ -103,8 +101,9 @@ char *ft_itoa_hex(unsigned long n)
     }
     
     char *result = (char *)malloc(sizeof(char) * (len + 1));
+
     if (!result)
-    return NULL;
+        return NULL;
     
     result[len] = '\0';
     

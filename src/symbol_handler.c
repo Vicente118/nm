@@ -190,23 +190,23 @@ char    get_symbol_type(File *file, void *sym_ptr, int arch)
         }
     }
 
-    if (sym_type == STT_GNU_IFUNC)
+    if (sym_type      == STT_GNU_IFUNC)
         type_char = 'i';
-    else if (sh_type == SHT_PROGBITS && (sh_flags & SHF_EXECINSTR))
+    else if (sh_type  == SHT_PROGBITS && (sh_flags & SHF_EXECINSTR))
         type_char = 'T';  // Executable code
-    else if (sh_type == SHT_PROGBITS && (sh_flags & SHF_WRITE))
+    else if (sh_type  == SHT_PROGBITS && (sh_flags & SHF_WRITE))
         type_char = 'D';  // Initialized data for Read/Write
-    else if (sh_type == SHT_PROGBITS)
+    else if (sh_type  == SHT_PROGBITS)
         type_char = 'R';  // Read-Only data
-    else if (sh_type == SHT_DYNAMIC)
+    else if (sh_type  == SHT_DYNAMIC)
         type_char = 'D';  // Dynamic section
-    else if (sh_type == SHT_INIT_ARRAY)
+    else if (sh_type  == SHT_INIT_ARRAY)
         type_char = 'T';  // Initialization section
-    else if (sh_type == SHT_FINI_ARRAY)
+    else if (sh_type  == SHT_FINI_ARRAY)
         type_char = 'T';  // Finalization section
-    else if (sh_type == SHT_NOBITS && (sh_flags & SHF_ALLOC) && (sh_flags & SHF_WRITE))
+    else if (sh_type  == SHT_NOBITS && (sh_flags & SHF_ALLOC) && (sh_flags & SHF_WRITE))
         type_char = 'B';  // Uninitialized data (BSS)
-    else if (sh_type == SHT_DYNSYM || sh_type == SHT_SYMTAB)
+    else if (sh_type  == SHT_DYNSYM || sh_type == SHT_SYMTAB)
         type_char = 'r';  // Symbol table
     else if (sym_type == STT_FUNC)
         type_char = 'T';  // Function

@@ -29,12 +29,8 @@ int init_elf32(File *file)
     if (ehdr->e_shstrndx >= ehdr->e_shnum)
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
-        write(2, "warning: ", ft_strlen("warning: "));
         write(2, file->filename, ft_strlen(file->filename));
-        write(2, CORRUPT, ft_strlen(CORRUPT));
-        write(2, NM_SEM, ft_strlen(NM_SEM));
-        write(2, file->filename, ft_strlen(file->filename));
-        write(2, NO_SYMB, ft_strlen(NO_SYMB));
+        write(2, WR_FORM, ft_strlen(WR_FORM));
         munmap(file->addr, file->length);
         close(file->fd);
         return -1;
@@ -131,12 +127,8 @@ int init_elf64(File *file)
     if (ehdr->e_shstrndx >= ehdr->e_shnum)
     {
         write(2, NM_SEM, ft_strlen(NM_SEM));
-        write(2, "warning: ", ft_strlen("warning: "));
         write(2, file->filename, ft_strlen(file->filename));
-        write(2, CORRUPT, ft_strlen(CORRUPT));
-        write(2, NM_SEM, ft_strlen(NM_SEM));
-        write(2, file->filename, ft_strlen(file->filename));
-        write(2, NO_SYMB, ft_strlen(NO_SYMB));
+        write(2, WR_FORM, ft_strlen(WR_FORM));
         munmap(file->addr, file->length);
         close(file->fd);
         return -2;

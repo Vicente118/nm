@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include "../libft/libft.h"
 
 #define A_OUT       "a.out"
@@ -63,7 +64,7 @@ typedef struct
 
 }   Symbol;
 
-
+extern bool multiple;
 
 /// Parsing
 int     argument_checker_and_process(int argc, char **argv, File *file);
@@ -81,7 +82,7 @@ Symbol  *symbol_handler(File *file);
 void sort_symbol(Symbol *symbols, File *file, int size, int arch);
 
 /// Display
-void    display_symbols(Symbol *symbols, File *file, int size);
+void    display_symbols(Symbol *symbols, File *file, int size, int count);
 
 /// Utils
 int     ft_strcasecmp(const char *s1, const char *s2);

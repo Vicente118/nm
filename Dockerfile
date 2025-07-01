@@ -1,7 +1,13 @@
 FROM debian:bullseye-slim
 
-RUN apt-get update && apt-get install -y \
+RUN dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install -y \
     gcc \
+    g++ \
+    gcc-multilib \
+    g++-multilib \
+    libc6-dev-i386 \
     binutils \
     make \
     nasm \
@@ -18,6 +24,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN make
+RUN make || true
 
 CMD ["/bin/bash"]

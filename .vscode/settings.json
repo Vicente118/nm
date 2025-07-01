@@ -4,6 +4,7 @@
         "elf.h": "c",
         "unistd.h": "c",
         "fcntl.h": "c",
-        "mman.h": "c"
+        "mman.h": "c",
+        "nm.h": "c"
     }
 }

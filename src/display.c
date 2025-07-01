@@ -1,7 +1,14 @@
 #include "../inc/nm.h"
 
-void display_symbols(Symbol *symbols, File *file, int size)
+void display_symbols(Symbol *symbols, File *file, int size, int count)
 {
+    if (multiple == 1)
+    {
+        if (count == 0)
+            write(1, "\n", 1);
+        write(1, file->filename, ft_strlen(file->filename));
+        write(1, ":\n", 2);
+    }
     for (int i = 0; i < size; i++)
     {
         if (symbols[i].name == NULL)

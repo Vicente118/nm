@@ -79,9 +79,9 @@ int    file_mapping(File *file, const char *filename)
             ehdr64->e_shnum > (SIZE_MAX - ehdr64->e_shoff) / ehdr64->e_shentsize ||     /* Protect against integer overflow */
             ehdr64->e_shoff + ehdr64->e_shnum * ehdr64->e_shentsize > file->length))    /* Check that the entire section table is in the file */
         {
-            write(2, "bfd plugin: ", ft_strlen("bfd plugin: "));
-            write(2, filename, ft_strlen(filename));
-            write(2, ": file to short\n", ft_strlen(": file to short\n"));
+            write(1, "bfd plugin: ", ft_strlen("bfd plugin: "));
+            write(1, filename, ft_strlen(filename));
+            write(1, ": file too short\n", ft_strlen(": file too short\n"));
             return handle_error(file, filename, WR_FORM);
         }
     }
@@ -95,9 +95,9 @@ int    file_mapping(File *file, const char *filename)
             ehdr32->e_shnum > (SIZE_MAX - ehdr32->e_shoff) / ehdr32->e_shentsize ||
             ehdr32->e_shoff + ehdr32->e_shnum * ehdr32->e_shentsize > file->length))
         {
-            write(2, "bfd plugin: ", ft_strlen("bfd plugin: "));
-            write(2, filename, ft_strlen(filename));
-            write(2, ": file to short\n", ft_strlen(": file to short\n"));
+            write(1, "bfd plugin: ", ft_strlen("bfd plugin: "));
+            write(1, filename, ft_strlen(filename));
+            write(1, ": file too short\n", ft_strlen(": file too short\n"));
             return handle_error(file, filename, WR_FORM);
         }
     }
@@ -139,9 +139,8 @@ int argument_checker_and_process(int argc, char **argv, File *file)
     }
     else 
     {
+        multiple = 1;
         int success_count = 0;
-
-        write(1, "\n", 1);
         
         for (int i = 1; i < argc; i++)
         {
@@ -150,9 +149,6 @@ int argument_checker_and_process(int argc, char **argv, File *file)
                 
             if (success_count > 0)
                 write(1, "\n", 1);
-                
-            write(1, argv[i], ft_strlen(argv[i]));
-            write(1, ":\n", 2);
             
             if (nm_process(file, argv[i]) == -1)
                 result = -1;

@@ -1,7 +1,11 @@
 #include "../inc/nm.h"
 
+bool multiple = 0;
+
 int nm_process(File *file, const char *filename)
 {
+    static int count = 0;
+
     int ret = init_elf_structures(file);
     if (ret != 0)
         return ret;
@@ -10,11 +14,13 @@ int nm_process(File *file, const char *filename)
 
     sort_symbol(symbols, file, file->symtab_entries, file->arch);
 
-    display_symbols(symbols, file, file->symtab_entries);
+    display_symbols(symbols, file, file->symtab_entries, count);
 
     free_names(file->symtab_entries, symbols);
     free(symbols);
     
+    count++;
+
     return 0;
 }
 
